@@ -159,10 +159,36 @@ def test_date_parsing_in_observations(datestring, errors):
     ]
     if errors:
         with pytest.raises(ValueError, match="Please use ISO date format"):
-            make_observations(observations, parse=False)
+            create_observation_dataframes(
+                observations=ErtConfig.from_dict({
+                    "NUM_REALIZATIONS": 1,
+                    "ECLBASE": "BASEBASEBASE",
+                    "SUMMARY": "*",
+                    "GEN_DATA": [["GEN", {"RESULT_FILE": "gen%d.txt", "REPORT_STEPS": "1"}]],
+                    "TIME_MAP": ("time_map.txt", "2020-01-01\n2020-01-02\n"),
+                    "OBS_CONFIG": (
+                        "obs_config",
+                        observations,
+                    ),
+                }).observation_declarations,
+                rft_config=None
+            )
     else:
         with pytest.warns(ConfigWarning, match="Please use ISO date format"):
-            make_observations(observations, parse=False)
+            create_observation_dataframes(
+                observations=ErtConfig.from_dict({
+                    "NUM_REALIZATIONS": 1,
+                    "ECLBASE": "BASEBASEBASE",
+                    "SUMMARY": "*",
+                    "GEN_DATA": [["GEN", {"RESULT_FILE": "gen%d.txt", "REPORT_STEPS": "1"}]],
+                    "TIME_MAP": ("time_map.txt", "2020-01-01\n2020-01-02\n"),
+                    "OBS_CONFIG": (
+                        "obs_config",
+                        observations,
+                    ),
+                }).observation_declarations,
+                rft_config=None
+            )
 
 
 def test_that_using_summary_observations_without_eclbase_shows_user_error():
@@ -526,8 +552,7 @@ def test_that_error_must_be_greater_than_zero_in_summary_observations(std):
     with pytest.raises(
         ConfigValidationError, match=r"must be given a strictly positive value"
     ):
-        make_observations(
-            [
+        obs = [
                 {
                     "type": ObservationType.SUMMARY,
                     "name": "FOPR",
@@ -536,8 +561,22 @@ def test_that_error_must_be_greater_than_zero_in_summary_observations(std):
                     "DATE": "2020-01-02",
                     "ERROR": str(std),
                 }
-            ],
-            parse=False,
+            ]
+        create_observation_dataframes(
+            observations=ErtConfig.from_dict(
+                {
+                    "NUM_REALIZATIONS": 1,
+                    "ECLBASE": "BASEBASEBASE",
+                    "SUMMARY": "*",
+                    "GEN_DATA": [["GEN", {"RESULT_FILE": "gen%d.txt", "REPORT_STEPS": "1"}]],
+                    "TIME_MAP": ("time_map.txt", "2020-01-01\n2020-01-02\n"),
+                    "OBS_CONFIG": (
+                        "obs_config",
+                        obs,
+                    ),
+                }
+            ).observation_declarations,
+            rft_config=None
         )
 
 
