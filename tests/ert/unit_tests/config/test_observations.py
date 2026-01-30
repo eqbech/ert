@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from textwrap import dedent
 
+from ert.config._create_observation_dataframes import create_observation_dataframes
 import hypothesis.strategies as st
 import polars as pl
 import pytest
@@ -399,7 +400,7 @@ def test_that_the_date_keyword_sets_the_summary_index_without_time_map_or_refcas
 def test_that_general_observations_can_use_restart_even_without_refcase_and_time_map(
     restart, value
 ):
-    observations = ErtConfig.from_dict(
+    ert_config: ErtConfig = ErtConfig.from_dict(
         {
             "GEN_DATA": [
                 ["GEN", {"RESULT_FILE": "gen%d.txt", "REPORT_STEPS": str(restart)}]
@@ -418,9 +419,14 @@ def test_that_general_observations_can_use_restart_even_without_refcase_and_time
                 ],
             ),
         }
-    ).observations["gen_data"]
-    assert list(observations["report_step"]) == [restart]
-    assert list(observations["observations"]) == pytest.approx([value])
+    )
+    observations = create_observation_dataframes(
+        observations = ert_config.observation_declarations,
+        rft_config = None,
+    )
+
+    assert list(observations["gen_data"]["report_step"]) == [restart]
+    assert list(observations["gen_data"]["observations"]) == pytest.approx([value])
 
 
 @pytest.mark.usefixtures("use_tmpdir")
