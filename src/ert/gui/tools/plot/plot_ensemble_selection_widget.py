@@ -87,9 +87,9 @@ class EnsembleSelectListWidget(QListWidget):
             it.setData(EnsembleSelectListWidgetItemDataRole.ENSEMBLE, ensemble)
             it.setData(
                 EnsembleSelectListWidgetItemDataRole.COLOR_INDEX,
-                self.assign_available_color(None) if i == 0 else None,
+                self.assign_available_color(None),
             )
-            it.setData(Qt.ItemDataRole.CheckStateRole, i == 0)
+            it.setData(Qt.ItemDataRole.CheckStateRole, True)
             self.addItem(it)
             self._ensemble_count += 1
             it.setToolTip(
