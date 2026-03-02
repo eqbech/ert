@@ -25,35 +25,26 @@ def test_ensemble_selection_widget_max_min_selection(qtbot: QtBot):
     list_widget = get_child(widget, EnsembleSelectListWidget, "ensemble_selector")
 
     assert (
-        len(widget.get_selected_ensembles()) == list_widget.MINIMUM_SELECTED
-    )  # initially one selected
+        len(widget.get_selected_ensembles()) == list_widget.MAXIMUM_SELECTED
+    )  # initially 5 selected
 
     qtbot.mouseClick(
         list_widget.viewport(),
         Qt.MouseButton.LeftButton,
         pos=list_widget.visualItemRect(list_widget.item(0)).center(),
-    )  # deselect the only item selected
+    )  # deselect one item
 
     assert (
-        len(widget.get_selected_ensembles()) == list_widget.MINIMUM_SELECTED
-    )  # still one selected
+        len(widget.get_selected_ensembles()) == list_widget.MAXIMUM_SELECTED - 1
+    )  # 4 selected
 
-    for index in range(list_widget.count()):  # select 'all'
+    for index in range(list_widget.count()):  # deselect all selected items
         it = list_widget.item(index)
-        qtbot.mouseClick(
-            list_widget.viewport(),
-            Qt.MouseButton.LeftButton,
-            pos=list_widget.visualItemRect(it).center(),
-        )
-
-    assert len(widget.get_selected_ensembles()) == list_widget.MAXIMUM_SELECTED
-
-    for index in reversed(range(list_widget.count())):  # deselect 'all'
-        it = list_widget.item(index)
-        qtbot.mouseClick(
-            list_widget.viewport(),
-            Qt.MouseButton.LeftButton,
-            pos=list_widget.visualItemRect(it).center(),
-        )
+        if it and it.data(Qt.ItemDataRole.CheckStateRole):
+            qtbot.mouseClick(
+                list_widget.viewport(),
+                Qt.MouseButton.LeftButton,
+                pos=list_widget.visualItemRect(it).center(),
+            )
 
     assert len(widget.get_selected_ensembles()) == list_widget.MINIMUM_SELECTED
